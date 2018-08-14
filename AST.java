@@ -1,182 +1,310 @@
 // AST.java
-// Classes for representing Minimath Abstract Syntax Tree.
-// Original author: Christine ALvarado
+// Classes for representing Unicalc Abstract Syntax Tree.
+// Original author: Chris Stone
 
-
+// Extended by: Christine Alvarado
+// Extedned again by : Xirui Li CS12fhm A13691309
+package hw8;
 
 import java.util.*;
 
-/** Interface the specifies an Abstract Syntax Tree for 
-  * a simple math language */
+/** The interface for an Abstract Syntax Tree for Unicalc */
 interface AST {
-  
-  /** Returns a string representaiton of the tree.
-    * @return A string representation of the tree */
-  public String   toString();
-  
-  /** Evaluate the tree
-    * @param env The environment in which to do the evaluation
-    * @return A double representing the value of the tree.
-    * */
-  public double eval(Map<String,Double> env);
+    /** The string representation of this AST
+     * @return The String representation of this AST */
+    public String   toString();
+    
+    /** Evaluate this AST
+     * @param env The environment in which to do the evaluation (symbol map)
+     * @return The value of the AST
+     * */
+    public Quantity eval(Map<String,Quantity> env);
+    
+    /** Equals
+     * @param An object to compare to
+     * @return true if o represents the same kind of AST with the same structure
+     *         false otherwise.
+     * */
+    public boolean equals( Object o );
 }
 
-// For full style points, we should have comments on all of 
-// our functions below...
+// The variables and methods should be self-evident
+// and you do not need to add header comments to the
+// classes and methods below unless you want to or you
+// are doing something cryptic.
 
-/** AST to represent a product */
 class Product implements AST
 {
-  private AST left;  // Left of the *
-  private AST right; // Right of the *
-
-  /** Construct a new Product */
-  public Product(AST l, AST r)
-  {
-    this.left = l;
-    this.right = r;
-  }
-  
-  public double eval(Map<String,Double> env)
-  {
-    return left.eval(env) * right.eval(env); 
-  }  
-  
-  public String toString()
-  {
-    return ("Product(" + left + "," + right + ")");
-  }  
+    private AST left;
+    private AST right;
+    
+    public Product(AST l, AST r)
+    {
+        this.left = l;
+        this.right = r;
+    }
+    
+    public Quantity eval(Map<String,Quantity> env)
+    {
+    	Quantity toReturn = new Quantity(this.left.eval(env).mul(this.right.eval(env)));
+    	return toReturn;
+    }
+    
+    public String toString()
+    {
+        return ("Product(" + left + "," + right + ")");
+    }
+    
+    public boolean equals( Object o ) {
+        if ( o instanceof Product ) {
+            Product tree = (Product)o;
+            return tree.left.equals( left ) && tree.right.equals( right );
+        }
+        else return false;
+    }
 }
 
 class Quotient implements AST
 {
-  private AST left;
-  private AST right;
+    private AST left;
+    private AST right;
+    
+    public Quotient(AST l, AST r)
+    {
+        this.left = l;
+        this.right = r;
+    }
+    
+    public Quantity eval(Map<String,Quantity> env)
+    {
+    	Quantity toReturn = new Quantity(this.left.eval(env).div(this.right.eval(env)));
+    	return toReturn;
+    }
+    
+    public String toString()
+    {
+        return ("Quotient(" + left + "," + right + ")");
+    }
+    
+    public boolean equals( Object o ) {
+        if ( o instanceof Quotient ) {
+            Quotient tree = (Quotient)o;
+            return tree.left.equals( left ) && tree.right.equals( right );
+        }
+        else return false;
+    }
+}
 
-  public Quotient(AST l, AST r)
-  {
-    this.left = l;
-    this.right = r;
-  }
-  
-  public double eval(Map<String,Double> env)
-  {
-    return left.eval(env) / right.eval(env); 
-  }  
-  
-  public String toString()
-  {
-    return ("Quotient(" + left + "," + right + ")");
-  }
+class Power implements AST
+{
+    private AST child;
+    private int exponent;
+    
+    public Power(AST ast, int expt)
+    {
+        this.child = ast;
+        this.exponent = expt;
+    }
+    
+    public Quantity eval(Map<String,Quantity> env)
+    {
+        Quantity toReturn = new Quantity(this.child.eval(env).pow(this.exponent));
+    	return toReturn; // Seems unlikely
+    }
+    
+    public String toString()
+    {
+        return ("Power(" + child + "," + exponent + ")");
+    }
+    
+    public boolean equals( Object o ) {
+        if ( o instanceof Power ) {
+            Power tree = (Power)o;
+            return tree.child.equals( this.child ) && tree.exponent == this.exponent;
+        }
+        else return false;
+    }
 }
 
 class Sum implements AST
 {
-  private AST left;
-  private AST right;
-
-  public Sum(AST l, AST r)
-  {
-    this.left = l;
-    this.right = r;
-  }
-  
-  public double eval(Map<String,Double> env)
-  {
-    return left.eval(env) + right.eval(env);
-  }  
-  
-  public String toString()
-  {
-    return ("Sum(" + left + "," + right + ")");
-  }
+    private AST left;
+    private AST right;
+    
+    public Sum(AST l, AST r)
+    {
+        this.left = l;
+        this.right = r;
+    }
+    
+    public Quantity eval(Map<String,Quantity> env)//What is NUll??????????
+    {
+        Quantity evalResult = (this.left.eval(env)).add(this.right.eval(env));
+    	return evalResult; 
+    }
+    
+    public String toString()
+    {
+        return ("Sum(" + left + "," + right + ")");
+    }
+    
+    public boolean equals( Object o ) {
+        if ( o instanceof Sum ) {
+            Sum tree = (Sum)o;
+            return tree.left.equals( left ) && tree.right.equals( right );
+        }
+        else return false;
+    }
 }
 
 class Difference implements AST
 {
-  private AST left;
-  private AST right;
-
-  public Difference(AST l, AST r)
-  {
-    this.left = l;
-    this.right = r;
-  }
-  
-  public double eval(Map<String,Double> env)
-  {
-    return left.eval(env) - right.eval(env);
-  }  
-
-  public String toString()
-  {
-    return ("Difference(" + left + "," + right + ")");
-  }
-
+    private AST left;
+    private AST right;
+    
+    public Difference(AST l, AST r)
+    {
+        this.left = l;
+        this.right = r;
+    }
+    
+    public Quantity eval(Map<String,Quantity> env)
+    {
+        Quantity evalResult = (this.left.eval(env)).sub(this.right.eval(env));
+    	return evalResult;
+    }
+    
+    public String toString()
+    {
+        return ("Difference(" + left + "," + right + ")");
+    }
+    
+    public boolean equals( Object o ) {
+        if ( o instanceof Difference ) {
+            Difference tree = (Difference)o;
+            return tree.left.equals( left ) && tree.right.equals( right );
+        }
+        else return false;
+    }
+    
 }
 
 
-class Constant implements AST
+class Negation implements AST
 {
-  private double quant;
-
-  public Constant(double d)
-  {
-    this.quant = d;
-  }
-  
-  public double eval(Map<String,Double> env)
-  {
-    return quant; 
-  }  
-  
-  public String toString()
-  {
-    return ("Const(" + quant + ")");
-  }
+    private AST child;
+    
+    public Negation(AST ast)
+    {
+        this.child = ast;
+    }
+    
+    public Quantity eval(Map<String,Quantity> env)
+    {
+    	Quantity toReturn = new Quantity(this.child.eval(env).negate());
+    	return toReturn;
+    }
+    
+    public String toString()
+    {
+        return ("Negation(" + child + ")");
+    }
+    
+    public boolean equals( Object o ) {
+        if ( o instanceof Negation ) {
+            Negation tree = (Negation)o;
+            return tree.child.equals( this.child );
+        }
+        else return false;
+    }
+}
+class Value implements AST
+{
+    private Quantity quant;
+    
+    public Value(Quantity q)
+    {
+        this.quant = q;
+    }
+    
+    public Quantity eval(Map<String,Quantity> env)
+    {
+        return this.quant;
+    }
+    
+    public String toString()
+    {
+        return ("Value(" + quant + ")");
+    }
+    
+    public boolean equals( Object o ) {
+        if ( o instanceof Value ) {
+            Value val = (Value)o;
+            return val.quant.equals( this.quant );
+        }
+        else return false;
+    }
 }
 
-class Variable implements AST
+class Normalize implements AST
 {
-  private String name;
-
-  public Variable(String n)
-  {
-    this.name = n;
-  }
-  
-  public double eval(Map<String,Double> env)
-  {
-    return env.get(name); 
-  }  
-  
-  public String toString()
-  {
-    return ("Variable(" + name + ")");
-  }
+    private AST child;
+    
+    public Normalize(AST ast)
+    {
+        this.child = ast;
+    }
+    
+    public Quantity eval(Map<String,Quantity> env)
+    {
+    	Quantity toReturn = new Quantity(this.child.eval(env).normalize(env));
+    	return toReturn;
+    }
+    
+    public String toString()
+    {
+        return ("Normalize(" + child + ")");
+    }
+    
+    public boolean equals( Object o ) {
+        if ( o instanceof Normalize ) {
+            Normalize tree = (Normalize)o;
+            return tree.child.equals( this.child );
+        }
+        else return false;
+    }
+    
 }
 
 class Define implements AST
 {
-  private AST value;
-  private String name;
-
-  public Define(String n, AST v)
-  {
-    this.name = n;
-    this.value = v;
-  }
-  
-  public double eval(Map<String,Double> env)
-  {
-    double val = value.eval(env);
-    env.put( name, val );
-    return val; 
-  }  
-  
-  public String toString()
-  {
-    return ("Define(" + name + ", " + value + ")");
-  }
+    private String unitName;
+    private AST defn;
+    
+    public Define(String name, AST ast)
+    {
+        this.unitName = name;
+        this.defn = ast;
+    }
+    
+    public Quantity eval(Map<String,Quantity> env)
+    {   
+        Quantity toReturn = this.defn.eval(env);
+        env.put(this.unitName, toReturn);
+    	return toReturn; // Seems unlikely
+    }
+    
+    public String toString()
+    {
+        return ("Define(" + unitName + "," + defn + ")");
+    }  
+    
+    public boolean equals( Object o ) {
+        if ( o instanceof Define ) {
+            Define tree = (Define)o;
+            return tree.unitName.equals( this.unitName ) 
+            && tree.defn.equals( this.defn );
+        }
+        else return false;
+    }
 }
-
